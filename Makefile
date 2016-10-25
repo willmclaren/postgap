@@ -2,7 +2,7 @@ DEST_DIR=~/lustre2/CTTV24/databases_test
 
 default: download process
 download: create_dir d_GRASP d_Phewas_Catalog d_GWAS_DB d_Fantom5 d_DHS d_Regulome d_1000Genomes
-process: GRASP Phewas_Catalog GWAS_DB Fantom5 DHS Regulome 1000Genomes
+process: GRASP Phewas_Catalog GWAS_DB Fantom5 DHS Regulome
 
 clean_raw:
 	rm -rf ${DEST_DIR}/raw/*
@@ -22,7 +22,7 @@ GRASP:
 
 
 d_Phewas_Catalog:
-	wget -nc http://phewas.mc.vanderbilt.edu/phewas-catalog.csv > ${DEST_DIR}/raw/Phewas_Catalog.csv
+	wget -nc http://phewas.mc.vanderbilt.edu/phewas-catalog.csv -qO ${DEST_DIR}/raw/Phewas_Catalog.csv
 
 Phewas_Catalog: 
 	python scripts/preprocessing/csvToTsv.py ${DEST_DIR}/raw/Phewas_Catalog.csv  > ${DEST_DIR}/Phewas_Catalog.txt
