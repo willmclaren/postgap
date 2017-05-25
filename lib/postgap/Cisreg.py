@@ -323,8 +323,8 @@ class VEP(Cisreg_source):
 
 		return res
 
-	def remove_none_elements(self, list):
-		return list(filter(self.exists, list))
+	def remove_none_elements(self, listref):
+		return list(filter(self.exists, listref))
 
 	def exists(self, it):
 		return (it is not None)

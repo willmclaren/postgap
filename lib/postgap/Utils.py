@@ -30,7 +30,7 @@ limitations under the License.
 
 """
 from six.moves import range
-def concatenate(list):
+def concatenate(listref):
 	"""
 
 		Shorthand to concatenate a list of lists
@@ -38,9 +38,9 @@ def concatenate(list):
 		Returntype: []
 
 	"""
-	return sum([elem for elem in list if elem is not None], [])
+	return sum([elem for elem in listref if elem is not None], [])
 
-def concatenate_hashes(list):
+def concatenate_hashes(listref):
 	"""
 
 		Shorthand to concatenate a list of lists
@@ -48,7 +48,7 @@ def concatenate_hashes(list):
 		Returntype: []
 
 	"""
-	return dict(sum([list(X.items()) for X in [elem for elem in list if elem is not None]], []))
+	return dict(sum([list(X.items()) for X in [elem for elem in listref if elem is not None]], []))
 
 def chunks(l, n):
 	for i in range(0, len(l), n):
