@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import absolute_import
+
 """
 
 Copyright [1999-2016] EMBL-European Bioinformatics Institute
@@ -28,7 +30,7 @@ limitations under the License.
 
 """
 
-import Globals
+from . import Globals
 from postgap.DataModel import *
 import postgap.BedTools
 import logging
@@ -61,7 +63,7 @@ class Regulome(Reg_source):
 		"""
 		snp_hash = dict( (snp.rsID, snp) for snp in ld_snps)
 		intersection = postgap.BedTools.overlap_snps_to_bed(ld_snps, postgap.Globals.DATABASES_DIR + "/Regulome.bed")
-		res = filter (lambda X: X.score, (self.get_regulome_evidence(feature, snp_hash) for feature in intersection))
+		res = [X for X in (self.get_regulome_evidence(feature, snp_hash) for feature in intersection) if X.score]
 
 		self.logger.info("\tFound %i regulatory variants in Regulome" % (len(res)))
 

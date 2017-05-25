@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import absolute_import
+
 """
 
 Copyright [1999-2016] EMBL-European Bioinformatics Institute
@@ -27,17 +29,18 @@ limitations under the License.
 	<http://www.ensembl.org/Help/Contact>.
 
 """
-import cPickle as pickle
+import six.moves.cPickle as pickle
 import collections
 
 from postgap.DataModel import *
 from postgap.Utils import *
-import REST
+from . import REST
 import postgap.Globals 
-import BedTools
-import Ensembl_lookup
+from . import BedTools
+from . import Ensembl_lookup
 import requests
 import logging
+from six.moves import filter
 
 VEP_impact_to_score = {
 	'HIGH': 4,
@@ -302,7 +305,7 @@ class VEP(Cisreg_source):
 		'''
 
 		snp_hash = dict( (snp.rsID, snp) for snp in snps)
-		transcript_consequences = filter(lambda X: 'transcript_consequences' in X, list)
+		transcript_consequences = [X for X in list if 'transcript_consequences' in X]
 		res = [
 			Cisregulatory_Evidence(
 				snp = snp_hash[hit['input']],
@@ -321,7 +324,7 @@ class VEP(Cisreg_source):
 		return res
 
 	def remove_none_elements(self, list):
-		return filter(self.exists, list)
+		return list(filter(self.exists, list))
 
 	def exists(self, it):
 		return (it is not None)
@@ -373,11 +376,11 @@ class Fantom5(Cisreg_source):
 		intersection = postgap.BedTools.overlap_snps_to_bed(snps, postgap.Globals.DATABASES_DIR + "/Fantom5.bed")
 		fdr_model = pickle.load(open(postgap.Globals.DATABASES_DIR + "/Fantom5.fdrs"))
 		snp_hash = dict( (snp.rsID, snp) for snp in snps)
-		hits  = filter(lambda X: X is not None, map(lambda X: self.get_evidence(X, fdr_model, snp_hash), intersection))
+		hits  = [X for X in [self.get_evidence(X, fdr_model, snp_hash) for X in intersection] if X is not None]
 
 		self.logger.info("\tFound %i overlaps with %i SNPs to Fantom5" % (len(hits), len(snps)))
 
-		res = filter(lambda X: X.score, hits)
+		res = [X for X in hits if X.score]
 
 		self.logger.info("\tFound %i interactions in Fantom5" % (len(res)))
 
@@ -430,7 +433,7 @@ class DHS(Cisreg_source):
 		intersection = postgap.BedTools.overlap_snps_to_bed(snps, postgap.Globals.DATABASES_DIR + "/DHS.bed")
 		fdr_model = pickle.load(open(postgap.Globals.DATABASES_DIR+"/DHS.fdrs"))
 		snp_hash = dict( (snp.rsID, snp) for snp in snps)
-		res = filter (lambda X: X is not None and X.score, (self.get_evidence(feature, fdr_model, snp_hash) for feature in intersection))
+		res = [X for X in (self.get_evidence(feature, fdr_model, snp_hash) for feature in intersection) if X is not None and X.score]
 
 		self.logger.info("\tFound %i gene associations in DHS" % len(res))
 
@@ -532,7 +535,7 @@ class PCHIC(Cisreg_source):
 		"""
 		intersection = postgap.BedTools.overlap_snps_to_bed(snps, postgap.Globals.DATABASES_DIR + "/pchic.bed")
 		snp_hash = dict( (snp.rsID, snp) for snp in snps)
-		res = filter (lambda X: X is not None and X.score, (self.get_evidence(feature, snp_hash) for feature in intersection))
+		res = [X for X in (self.get_evidence(feature, snp_hash) for feature in intersection) if X is not None and X.score]
 
 		self.logger.info("\tFound %i gene associations in PCHIC" % len(res))
 

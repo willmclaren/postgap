@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from flask import Flask, request
 
 import json
@@ -12,6 +13,7 @@ import postgap.EFO
 import postgap.Globals
 import postgap.Integration
 from postgap.Utils import *
+from six.moves import map
 
 postgap_server = Flask(__name__)
 
@@ -74,7 +76,7 @@ def get_options():
 
   # modify
   if len(options['efos']) == 0:
-    options['efos'] = filter(lambda X: X is not None, (postgap.EFO.suggest(disease) for disease in options['diseases']))
+    options['efos'] = [X for X in (postgap.EFO.suggest(disease) for disease in options['diseases']) if X is not None]
 
   # set defaults
   postgap.Globals.DATABASES_DIR = 'databases'

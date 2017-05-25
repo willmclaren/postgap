@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import absolute_import
+
 """
 
 Copyright [1999-2016] EMBL-European Bioinformatics Institute
@@ -47,6 +49,8 @@ from postgap.Utils import *
 
 import sys
 from pprint import pformat
+from six.moves import map
+import six
 
 '''
 Development TODO list:
@@ -90,10 +94,10 @@ def main():
 		efo_iris = postgap.EFO.query_iris_for_efo_short_form_list(options.efos)
 
 	if options.efos is None:
-		efo_iris = filter(lambda X: X is not None, (postgap.EFO.suggest(disease) for disease in options.diseases))
+		efo_iris = [X for X in (postgap.EFO.suggest(disease) for disease in options.diseases) if X is not None]
 
 	# Expand list of EFOs to children, concatenate, remove duplicates
-	expanded_efo_iris = efo_iris + concatenate(map(postgap.EFO.children, efo_iris))
+	expanded_efo_iris = efo_iris + concatenate(list(map(postgap.EFO.children, efo_iris)))
 
 	if len(options.diseases) > 0 or len(expanded_efo_iris) > 0:
 		res = postgap.Integration.diseases_to_genes(options.diseases, expanded_efo_iris, "CEPH", options.tissues)
@@ -171,7 +175,7 @@ def pretty_snp_output(associations):
 
 	"""
 	header = "\t".join(['snp_rsID', 'chrom', 'pos', 'gene_symbol', 'gene_id', 'score'] + [obj.display_name for obj in postgap.Cisreg.sources + postgap.Reg.sources])
-	content = map(pretty_snp_association, associations)
+	content = list(map(pretty_snp_association, associations))
 	return "\n".join([header] + content) + "\n"
 
 def pretty_snp_association(association):
@@ -200,7 +204,7 @@ def pretty_output(associations):
 
 	"""
 	header = "\t".join(['ld_snp_rsID', 'chrom', 'pos', 'gene_symbol', 'gene_id', 'gene_chrom', 'gene_tss', 'disease_name', 'disease_efo_id', 'score', 'rank', 'r2', 'gwas_source', 'gwas_snp', 'gwas_pvalue', 'gwas_pmid', 'gwas_reported_trait', 'ls_snp_is_gwas_snp', 'vep_terms', 'vep_max', 'vep_mean'] + [source.display_name for source in postgap.Cisreg.sources + postgap.Reg.sources])
-	content = map(pretty_cluster_association, associations)
+	content = list(map(pretty_cluster_association, associations))
 	return "\n".join([header] + content)
 
 def pretty_cluster_association(association):
@@ -212,7 +216,7 @@ def pretty_cluster_association(association):
 
 	"""
 	results = genecluster_association_table(association)
-	return "\n".join("\t".join([unicode(element).encode('utf-8') for element in row]) for row in results)
+	return "\n".join("\t".join([six.text_type(element).encode('utf-8') for element in row]) for row in results)
 
 def db_output(db, associations):
 	"""
@@ -244,7 +248,7 @@ def db_output(db, associations):
 		ls_snp_is_gwas_snp INT,
 		vep_terms TEXT,''' + ",".join([re.sub(" ", "_", source.display_name) + " INT\n" for source in postgap.GWAS.sources + postgap.Cisreg.sources + postgap.Reg.sources]) + ")"
 	conn.execute(table_sql)
-	map(lambda association: db_output_association(conn, association), associations)
+	list(map(lambda association: db_output_association(conn, association), associations))
 	conn.commit()
 	conn.close()
 

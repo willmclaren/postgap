@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 
+from __future__ import absolute_import
+from __future__ import print_function
+
 """
 
 Copyright [1999-2016] EMBL-European Bioinformatics Institute
@@ -213,7 +216,7 @@ def get_pairwise_ld(ld_snps, population='EUR'):
 	process = Popen(ld_comm, stdout=PIPE, stderr=PIPE)
 	(output, err) = process.communicate()
 	if process.returncode:
-		print process.returncode
+		print(process.returncode)
 		raise Exception(err)
 
 	### First pass through file: collect rsIDs

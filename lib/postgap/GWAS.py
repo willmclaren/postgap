@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import absolute_import
+
 """
 
 Copyright [1999-2016] EMBL-European Bioinformatics Institute
@@ -174,7 +176,7 @@ class GRASP(GWAS_source):
 		
 		file = open(postgap.Globals.DATABASES_DIR+"/GRASP.txt")
 		res = [ self.get_association(line, diseases, efos) for line in file ]
-		res = filter(lambda X: X is not None, res)
+		res = [X for X in res if X is not None]
 
 		logger.info("\tFound %i GWAS SNPs associated to diseases (%s) or EFO IDs (%s) in GRASP" % (len(res), ", ".join(diseases), ", ".join(efos)))
 
@@ -289,7 +291,7 @@ class Phewas_Catalog(GWAS_source):
 		"""
 		file = open(postgap.Globals.DATABASES_DIR+"/Phewas_Catalog.txt")
 		res = [ self.get_association(line, diseases, efos) for line in file ]
-		res = filter(lambda X: X is not None, res)
+		res = [X for X in res if X is not None]
 
 		self.logger.info("\tFound %i GWAS SNPs associated to diseases (%s) or EFO IDs (%s) in Phewas Catalog" % (len(res), ", ".join(diseases), ", ".join(efos)))
 
@@ -346,7 +348,7 @@ class GWAS_DB(GWAS_source):
 		efos2 = [re.sub("_", "ID:", re.sub(".*/","", efo)) for efo in efos]
 	
 		res = [ self.get_association(line, diseases, efos) for line in file ]
-		res = filter(lambda X: X is not None, res)
+		res = [X for X in res if X is not None]
 
 		self.logger.info("\tFound %i GWAS SNPs associated to diseases (%s) or EFO IDs (%s) in GWAS DB" % (len(res), ", ".join(diseases), ", ".join(efos)))
 

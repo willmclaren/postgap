@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import absolute_import
+
 """
 
 Copyright [1999-2016] EMBL-European Bioinformatics Institute
@@ -27,6 +29,7 @@ limitations under the License.
 	<http://www.ensembl.org/Help/Contact>.
 
 """
+from six.moves import range
 def concatenate(list):
 	"""
 
@@ -35,7 +38,7 @@ def concatenate(list):
 		Returntype: []
 
 	"""
-	return sum(filter(lambda elem: elem is not None, list), [])
+	return sum([elem for elem in list if elem is not None], [])
 
 def concatenate_hashes(list):
 	"""
@@ -45,7 +48,7 @@ def concatenate_hashes(list):
 		Returntype: []
 
 	"""
-	return dict(sum(map(lambda X: X.items(), filter(lambda elem: elem is not None, list)), []))
+	return dict(sum([list(X.items()) for X in [elem for elem in list if elem is not None]], []))
 
 def chunks(l, n):
 	for i in range(0, len(l), n):

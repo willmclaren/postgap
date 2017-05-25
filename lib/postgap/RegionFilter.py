@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 from postgap.DataModel import *
 from postgap.Globals import BLACKLISTED_REGIONS
 
 def region_filter(clusters):
-	return filter(lambda cluster: not cluster_overlap_regions(cluster, BLACKLISTED_REGIONS), clusters)
+	return [cluster for cluster in clusters if not cluster_overlap_regions(cluster, BLACKLISTED_REGIONS)]
 
 def cluster_overlap_regions(cluster, regions):
 	return not any(cluster_overlap_region(cluster, region) for region in regions)

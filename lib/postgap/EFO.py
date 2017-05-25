@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import absolute_import
+
 """
 
 Copyright [1999-2016] EMBL-European Bioinformatics Institute
@@ -148,7 +150,7 @@ def suggest(term):
 
 	'''
 
-	hits = filter(lambda X: len(X['semanticTags']) == 1, result)
+	hits = [X for X in result if len(X['semanticTags']) == 1]
 	if len(hits)==0:
 		return
 	efo = hits[0]['semanticTags'][0]

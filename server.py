@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from postgap.Server import postgap_server
 
 # Import CherryPy

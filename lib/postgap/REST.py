@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import absolute_import
+
 """
 
 Copyright [1999-2016] EMBL-European Bioinformatics Institute
@@ -34,6 +36,7 @@ import time
 import logging
 
 from postgap.Globals import *
+from six.moves import range
 
 def get(server, ext, data=None):
 	"""
@@ -58,7 +61,7 @@ def get(server, ext, data=None):
 			else:
 				headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 				r = requests.post(str(server)+str(ext), headers = headers, data = json.dumps(data), timeout=200)
-                except requests.exceptions.ReadTimeout:
+		except requests.exceptions.ReadTimeout:
 			continue
 		except requests.exceptions.ConnectionError:
 			# A timeout can creep up as a connection error, so catching this as well.

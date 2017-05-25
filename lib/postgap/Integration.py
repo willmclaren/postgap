@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from __future__ import absolute_import
+
 """
 
 Copyright [1999-2016] EMBL-European Bioinformatics Institute
@@ -72,7 +74,7 @@ def diseases_to_gwas_snps(diseases, efos):
 	"""
 	logger = logging.getLogger(__name__)
 	
-	res = filter(lambda X: X.pvalue < PVALUE_CUTOFF, scan_disease_databases(diseases, efos))
+	res = [X for X in scan_disease_databases(diseases, efos) if X.pvalue < PVALUE_CUTOFF]
 
 	logger.info("Found %i GWAS SNPs associated to diseases (%s) or EFO IDs (%s) after p-value filter (%f)" % (len(res), ", ".join(diseases), ", ".join(efos), PVALUE_CUTOFF))
 
@@ -115,7 +117,7 @@ def scan_disease_databases(diseases, efos):
 				evidence = [ hit ]
 			)
 
-	res = associations_by_snp.values()
+	res = list(associations_by_snp.values())
 
 	logger.info("Found %i unique GWAS SNPs associated to diseases (%s) or EFO IDs (%s) in all databases" % (len(res), ", ".join(diseases), ", ".join(efos)))
 
@@ -174,7 +176,7 @@ def cluster_gwas_snps(gwas_snps, populations):
 
 	logger.info("Found %i locations from %i GWAS SNPs" % (len(gwas_snp_locations), len(gwas_snps)))
 
-	preclusters = filter (lambda X: X is not None, [ gwas_snp_to_precluster(gwas_snp_location, populations) for gwas_snp_location in gwas_snp_locations ])
+	preclusters = [X for X in [ gwas_snp_to_precluster(gwas_snp_location, populations) for gwas_snp_location in gwas_snp_locations ] if X is not None]
 	filtered_preclusters = postgap.RegionFilter.region_filter(preclusters)
 	clusters = merge_preclusters(filtered_preclusters)
 
@@ -208,7 +210,7 @@ def get_gwas_snp_locations(gwas_snps):
 
 	"""
 	original_gwas_snp = dict((gwas_snp.snp, gwas_snp) for gwas_snp in gwas_snps)
-	mapped_snps = postgap.Ensembl_lookup.get_snp_locations(original_gwas_snp.keys())
+	mapped_snps = postgap.Ensembl_lookup.get_snp_locations(list(original_gwas_snp.keys()))
 	return [
 		GWAS_SNP(
 			snp = mapped_snp,
@@ -238,7 +240,7 @@ def merge_preclusters(preclusters):
 
 				# Merge data from current cluster into previous cluster
 				merged_gwas_snps = other_cluster.gwas_snps + cluster.gwas_snps
-				merged_ld_snps = dict((ld_snp.rsID, ld_snp) for ld_snp in cluster.ld_snps + other_cluster.ld_snps).values()
+				merged_ld_snps = list(dict((ld_snp.rsID, ld_snp) for ld_snp in cluster.ld_snps + other_cluster.ld_snps).values())
 				merged_cluster = GWAS_Cluster(
 					gwas_snps = merged_gwas_snps,
 					ld_snps = merged_ld_snps
@@ -396,7 +398,7 @@ def ld_snps_to_genes(ld_snps, tissues):
 	cisreg = cisregulatory_evidence(ld_snps, tissues)
 
 	# Extract SNP specific info:
-	reg = regulatory_evidence(cisreg.keys(), tissues)
+	reg = regulatory_evidence(list(cisreg.keys()), tissues)
 
 	# Create objects
 	return concatenate((create_SNP_GeneSNP_Associations(snp, reg[snp], cisreg[snp]) for snp in cisreg))
@@ -474,7 +476,7 @@ def cisregulatory_evidence(ld_snps, tissues):
 	logger.info("Searching for cis-regulatory data on %i SNPs in all databases" % (len(ld_snps)))
 	evidence = concatenate(source().run(ld_snps, tissues) for source in postgap.Cisreg.sources)
 
-	filtered_evidence = filter(lambda association: association.gene is not None and association.gene.biotype == "protein_coding", evidence)
+	filtered_evidence = [association for association in evidence if association.gene is not None and association.gene.biotype == "protein_coding"]
 
 	# Group by snp, then gene:
 	res = collections.defaultdict(lambda: collections.defaultdict(list))
